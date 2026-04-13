@@ -1,0 +1,42 @@
+name: Generate and Push gRPC Code
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Proto Repo
+      uses: actions/checkout@v4
+
+    - name: Setup Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.22' 
+
+    - name: Install Protoc and Go Plugins
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y protobuf-compiler
+        go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+        go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+        echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+
+    - name: Generate Code
+      run: |
+        mkdir -p out
+        protoc --go_out=out --go-grpc_out=out proto/payment/payment.proto
+
+    - name: Push to Repository B
+      run: |
+        cd out/github.com/ddigreen/payment-generated
+        
+        git init
+        git config user.name "GitHub Actions Bot"
+        git config user.email "actions@github.com"
+        git add .
+        git commit -m "Auto-generated gRPC code from proto update"
+        
+        git push --force https://${{ secrets.PAT }}@github.com/ddigreen/payment-generated.git master:main
