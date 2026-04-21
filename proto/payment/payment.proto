@@ -29,3 +29,12 @@ message OrderStatusUpdate {
   string status = 1;
   google.protobuf.Timestamp updated_at = 2;
 }
+
+message ListPaymentsRequest {
+  int64 min_amount = 1; 
+  int64 max_amount = 2; 
+}
+
+message ListPaymentsResponse {
+  repeated PaymentResponse payments = 1;
+}
