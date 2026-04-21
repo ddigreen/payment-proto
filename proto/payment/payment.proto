@@ -20,7 +20,10 @@ message PaymentRequest {
 }
 
 message PaymentResponse {
-  string status = 1; // e.g., "Paid", "Failed"
+  string status = 1;
+  string id = 2;          
+  string order_id = 3;    
+  int64 amount = 4;       
 }
 
 message OrderRequest {
